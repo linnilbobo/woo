@@ -64,8 +64,8 @@ Woo is a fast non-blocking HTTP server built on top of [libev](http://software.s
     
 (defparameter *the-path-map* 
   (make-hash-table 
-										:test #'equal
-										:size 100
+		    :test #'equal
+		    :size 100
                     :rehash-size 100
                     :rehash-threshold 0.8
                     :weakness nil
