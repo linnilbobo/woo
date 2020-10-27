@@ -40,14 +40,14 @@ Woo is a fast non-blocking HTTP server built on top of [libev](http://software.s
 (ql:quickload :woo)
 
 (defun app (env)
- `(200 (:Content-Type "text/html"; charset=utf-8" :Server "wooo") ("<p>hello<\/p>")))
+ `(200 (:Content-Type "text/html; charset=utf-8" :Server "wooo") ("<p>hello<\/p>")))
  
 (sb-thread:make-thread 
   (lambda () 
     (woo:run #'app :debug nil :port 8080 :address "0.0.0.0" :worker-num 6)))
     
 (defun app (env)
- `(200 (:Content-Type "text/html"; charset=utf-8" :X-author "linnilbobo") "/the/path/to/your/html/file.html"))
+ `(200 (:Content-Type "text/html; charset=utf-8" :X-author "linnilbobo") "/the/path/to/your/html/file.html"))
  
 (defun app (env)
  `(200 (:Content-Type "image/png" :X-Content-Type-Options "nosniff") #(the-file-to-the-unsigned-octet-vector)))
@@ -71,7 +71,7 @@ Woo is a fast non-blocking HTTP server built on top of [libev](http://software.s
                     :weakness nil
                     :synchronized nil))
                     
-(setf (gethash "/" *the-path-map*) `(200 (:Content-Type "text/html"; charset=utf-8") "the-path-to-index-html-file.html"))
+(setf (gethash "/" *the-path-map*) `(200 (:Content-Type "text/html; charset=utf-8") "the-path-to-index-html-file.html"))
 ;(set (gethash "/look" ...
 ;use uiop to get all the file name of directory
 
