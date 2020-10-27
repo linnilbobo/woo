@@ -4,88 +4,95 @@
 
 Woo is a fast non-blocking HTTP server built on top of [libev](http://software.schmorp.de/pkg/libev.html). Although Woo is written in Common Lisp, it aims to be the fastest web server written in any programming language.
 
-## Warning
+# Need
+* libev
+* quicklisp
 
-This software is still BETA quality.
+# Use
 
-## How fast?
-
-![Benchmark graph](images/benchmark.png)
-
-See [benchmark.md](benchmark.md) for the detail.
-
-## Usage
-
-### Start a server
+---
 
 ```common-lisp
 (ql:quickload :woo)
 
-(woo:run
-  (lambda (env)
-    (declare (ignore env))
-    '(200 (:content-type "text/plain") ("Hello, World"))))
+(defun app (env)
+ `(200 nil ("hello, world")))
+ 
+(woo:run #'app)
+
 ```
 
-### Start with Clack
-
-```common-lisp
-(ql:quickload :clack)
-
-(clack:clackup
-  (lambda (env)
-    (declare (ignore env))
-    '(200 (:content-type "text/plain") ("Hello, World")))
-  :server :woo
-  :use-default-middlewares nil)
-```
-
-### Cluster
-
-```common-lisp
-(woo:run
-  (lambda (env)
-    (declare (ignore env))
-    '(200 (:content-type "text/plain") ("Hello, World")))
-  :worker-num 4)
-```
-
-## Signal handling
-
-When the master process gets these signals, it kills worker processes and quits afterwards.
-
-- QUIT: graceful shutdown, waits for all requests are finished.
-- INT/TERM: shutdown immediately.
-
-## Benchmarks
-
-See [benchmark.md](benchmark.md).
-
-## Installation
-
-Woo has switched the backend from cl-async to libev after the latest Quicklisp dist release. If you're gonna run the benchmarks by your own, please use the latest one.
-
-### Requirements
-
-* UNIX (GNU Linux, Mac, \*BSD)
-* SBCL
-* [libev](http://libev.schmorp.de)
-
-### Installing via Quicklisp
+---
 
 ```common-lisp
 (ql:quickload :woo)
+
+(defun app (env)
+ `(200 (:Content-Type "text/plain; charset=utf-8" :X-power-by "common-lisp") ("hello, world")))
+ 
+(woo:run #'app :debug nil :port 8080 :address "127.0.0.1") 
+
 ```
 
-## See Also
+---
 
-* [libev](http://software.schmorp.de/pkg/libev.html)
-* [Clack](http://clacklisp.org/)
-* [Wookie](http://wookie.beeets.com)
+```common-lisp
+(ql:quickload :woo)
+
+(defun app (env)
+ `(200 (:Content-Type "text/html"; charset=utf-8" :Server "wooo") ("<p>hello<\/p>")))
+ 
+(sb-thread:make-thread 
+  (lambda () 
+    (woo:run #'app :debug nil :port 8080 :address "0.0.0.0" :worker-num 6)))
+    
+(defun app (env)
+ `(200 (:Content-Type "text/html"; charset=utf-8" :X-author "linnilbobo") "/the/path/to/your/html/file.html"))
+ 
+(defun app (env)
+ `(200 (:Content-Type "image/png" :X-Content-Type-Options "nosniff") #(the-file-to-the-unsigned-octet-vector)))
+ 
+(defun app (env)
+  (let ((the-request-method (getf env :REQUEST-METHOD)))
+    (if (or (eq the-request-method :get) (eq the-request-method :post))
+      `(200 nil ("ok"))
+      `(404 nil ("not ok")))))
+  
+(defun app (env)
+  (let ((the-path-info (getf env :path-info)))
+    `(200 nil ,(format nil "i know you want to see ~A" the-path-info))))
+    
+(defparameter *the-path-map* 
+  (make-hash-table 
+										:test #'equal
+										:size 100
+                    :rehash-size 100
+                    :rehash-threshold 0.8
+                    :weakness nil
+                    :synchronized nil))
+                    
+(setf (gethash "/" *the-path-map*) `(200 (:Content-Type "text/html"; charset=utf-8") "the-path-to-index-html-file.html"))
+;(set (gethash "/look" ...
+;use uiop to get all the file name of directory
+
+(defun app (env)
+  (let ((the-path-info (getf env :path-info)))
+  
+    (let ((get-the-path (gethash the-path-info *the-path-map*)))
+      (if get-the-path
+          get-the-path
+          `(404 nil ("page-not-found"))))))
+
+;and woo do not support ssl, so you need a REVERSE PROXY, not if you don’t need https
+
+```
+
+---
 
 ## Author
 
 * Eitaro Fukamachi (e.arrows@gmail.com)
+* Documents: linnilbobo (if some thing wrong, please tell me)
 
 ## Copyright
 
