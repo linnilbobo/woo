@@ -85,6 +85,11 @@ Woo is a fast non-blocking HTTP server built on top of [libev](http://software.s
 
 ;and woo do not support ssl, so you need a REVERSE PROXY, not if you don’t need https
 
+(defun app (env)
+ (declare (ignorable env))
+ (declare (optimize (speed 3)))
+ `(200 nil ("bye")))
+
 ```
 
 ---
