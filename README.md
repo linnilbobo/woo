@@ -60,7 +60,7 @@ Woo is a fast non-blocking HTTP server built on top of [libev](http://software.s
   
 (defun app (env)
   (let ((the-path-info (getf env :path-info)))
-    `(200 nil ,(format nil "i know you want to see ~A" the-path-info))))
+    `(200 nil (,(format nil "i know you want to see ~A" the-path-info)))))
     
 (defparameter *the-path-map* 
   (make-hash-table 
